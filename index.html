@@ -10,12 +10,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background: #000510;
             font-family: 'Roboto', sans-serif;
             color: #00FFFF;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .container {
             text-align: center;
@@ -120,7 +120,7 @@
             background: rgba(255, 255, 255, 0.1);
             color: #00FFFF;
         }
-        #submitPasscode {
+        #submitPasscode, #viewMinutesBtn {
             padding: 10px 20px;
             font-size: 16px;
             background-color: #007BFF;
@@ -129,8 +129,9 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 20px;
         }
-        #submitPasscode:hover {
+        #submitPasscode:hover, #viewMinutesBtn:hover {
             background-color: #0056b3;
             transform: scale(1.05);
         }
@@ -182,7 +183,7 @@
     <div class="container" id="passcodeContainer">
         <h1 class="title">Güvenli Giriş</h1>
         <form id="passcodeForm">
-            <input type="text" id="passcodeInput" placeholder="Sihirli Kelimeleri Girin (Örn: "Açıl susam açıl)" required>
+            <input type="text" id="passcodeInput" placeholder="Passcode girin" required>
             <button type="submit" id="submitPasscode">Giriş</button>
         </form>
     </div>
@@ -200,6 +201,7 @@
             <div class="icon">🧠</div>
             <div class="icon">💻</div>
         </div>
+        <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
     </div>
 
     <script>
