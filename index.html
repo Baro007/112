@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proje İlerleme Durumu</title>
+    <title>AI-Enhanced Ambulance System Progress</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -12,15 +12,18 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
             font-family: 'Roboto', sans-serif;
             color: #ffffff;
         }
         .container {
             text-align: center;
+            width: 80%;
+            max-width: 600px;
         }
         .progress-container {
-            width: 300px;
+            width: 100%;
             height: 30px;
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -30,33 +33,46 @@
             margin: 20px auto;
         }
         .progress-bar {
-            width: 0%;
+            width: 5%;
             height: 100%;
-            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
             border-radius: 15px;
-            transition: width 1.5s ease-in-out;
             position: relative;
+            transition: width 1s ease-in-out;
         }
-        .progress-bar::after {
+        .progress-bar::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.1) 25%,
-                rgba(255, 255, 255, 0.2) 50%,
-                rgba(255, 255, 255, 0.1) 75%
-            );
-            background-size: 200% 100%;
-            animation: shine 3s infinite linear;
+            background: 
+                linear-gradient(90deg, 
+                    rgba(255,255,255,.1) 10%, 
+                    transparent 10%, 
+                    transparent 20%, 
+                    rgba(255,255,255,.1) 20%, 
+                    rgba(255,255,255,.1) 30%, 
+                    transparent 30%, 
+                    transparent 40%, 
+                    rgba(255,255,255,.1) 40%, 
+                    rgba(255,255,255,.1) 50%, 
+                    transparent 50%, 
+                    transparent 60%, 
+                    rgba(255,255,255,.1) 60%, 
+                    rgba(255,255,255,.1) 70%, 
+                    transparent 70%, 
+                    transparent 80%, 
+                    rgba(255,255,255,.1) 80%, 
+                    rgba(255,255,255,.1) 90%, 
+                    transparent 90%, 
+                    transparent);
+            animation: barStripes 1s linear infinite;
         }
-        @keyframes shine {
-            to {
-                background-position: 200% 0;
-            }
+        @keyframes barStripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 0; }
         }
         .percentage {
             position: absolute;
@@ -79,38 +95,45 @@
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
+        .icon-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .icon {
+            font-size: 40px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Proje İlerleme Durumu</h1>
+        <h1 class="title">AI-Enhanced Ambulance System</h1>
         <div class="progress-container">
             <div class="progress-bar">
-                <div class="percentage">0%</div>
+                <div class="percentage">5%</div>
             </div>
         </div>
-        <div class="message">Proje şu an %5 aşamasında. İlerleyen günlerde tamamlanacak!</div>
+        <div class="message">Proje şu an %5 aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
+        <div class="icon-container">
+            <div class="icon">🚑</div>
+            <div class="icon">🧠</div>
+            <div class="icon">💻</div>
+        </div>
     </div>
 
     <script>
         const progressBar = document.querySelector('.progress-bar');
         const percentageText = document.querySelector('.percentage');
         const targetProgress = 5;
-        let currentProgress = 0;
 
-        function updateProgress() {
-            if (currentProgress < targetProgress) {
-                currentProgress += 0.1;
-                progressBar.style.width = `${currentProgress}%`;
-                percentageText.textContent = `${currentProgress.toFixed(1)}%`;
-                requestAnimationFrame(updateProgress);
-            } else {
-                progressBar.style.width = `${targetProgress}%`;
-                percentageText.textContent = `${targetProgress}%`;
-            }
-        }
-
-        updateProgress();
+        progressBar.style.width = `${targetProgress}%`;
+        percentageText.textContent = `${targetProgress}%`;
     </script>
 </body>
 </html>
