@@ -33,12 +33,16 @@
             margin: 20px auto;
         }
         .progress-bar {
-            width: 0%;
+            width: 5%;
             height: 100%;
             background: linear-gradient(90deg, #00d2ff, #3a7bd5);
             border-radius: 15px;
             position: relative;
-            transition: width 2s ease-in-out;
+            animation: fillProgress 2s ease-out forwards;
+        }
+        @keyframes fillProgress {
+            from { width: 0%; }
+            to { width: 5%; }
         }
         .progress-bar::before {
             content: '';
@@ -69,6 +73,15 @@
             font-size: 16px;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            animation: updatePercentage 2s ease-out forwards;
+        }
+        @keyframes updatePercentage {
+            0% { content: "0%"; }
+            20% { content: "1%"; }
+            40% { content: "2%"; }
+            60% { content: "3%"; }
+            80% { content: "4%"; }
+            100% { content: "5%"; }
         }
         .message {
             margin-top: 20px;
@@ -96,14 +109,47 @@
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+        #passcodeForm {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        #passcodeInput {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #submitPasscode {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3a7bd5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #submitPasscode:hover {
+            background-color: #2a5db2;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="passcodeContainer">
+        <h1 class="title">Güvenli Giriş</h1>
+        <form id="passcodeForm">
+            <input type="text" id="passcodeInput" placeholder="Passcode girin" required>
+            <button type="submit" id="submitPasscode">Giriş</button>
+        </form>
+    </div>
+
+    <div class="container" id="contentContainer" style="display: none;">
         <h1 class="title">AI-Enhanced Ambulance System</h1>
         <div class="progress-container">
             <div class="progress-bar">
-                <div class="percentage">0%</div>
+                <div class="percentage"></div>
             </div>
         </div>
         <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
@@ -115,24 +161,16 @@
     </div>
 
     <script>
-        const progressBar = document.querySelector('.progress-bar');
-        const percentageText = document.querySelector('.percentage');
-        const targetProgress = 5;
-        let currentProgress = 0;
-
-        function updateProgress() {
-            if (currentProgress < targetProgress) {
-                currentProgress += 0.1;
-                progressBar.style.width = `${currentProgress}%`;
-                percentageText.textContent = `${currentProgress.toFixed(1)}%`;
-                requestAnimationFrame(updateProgress);
+        document.getElementById('passcodeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var passcode = document.getElementById('passcodeInput').value;
+            if (passcode === '112-911') {
+                document.getElementById('passcodeContainer').style.display = 'none';
+                document.getElementById('contentContainer').style.display = 'block';
             } else {
-                progressBar.style.width = `${targetProgress}%`;
-                percentageText.textContent = `${targetProgress}%`;
+                alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
-        }
-
-        setTimeout(updateProgress, 500); // Start after a short delay
+        });
     </script>
 </body>
 </html>
