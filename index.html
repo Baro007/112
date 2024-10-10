@@ -33,12 +33,12 @@
             margin: 20px auto;
         }
         .progress-bar {
-            width: 5%;
+            width: 0%;
             height: 100%;
             background: linear-gradient(90deg, #00d2ff, #3a7bd5);
             border-radius: 15px;
             position: relative;
-            transition: width 1s ease-in-out;
+            transition: width 2s ease-in-out;
         }
         .progress-bar::before {
             content: '';
@@ -48,31 +48,18 @@
             right: 0;
             bottom: 0;
             background: 
-                linear-gradient(90deg, 
-                    rgba(255,255,255,.1) 10%, 
-                    transparent 10%, 
-                    transparent 20%, 
-                    rgba(255,255,255,.1) 20%, 
-                    rgba(255,255,255,.1) 30%, 
-                    transparent 30%, 
-                    transparent 40%, 
-                    rgba(255,255,255,.1) 40%, 
-                    rgba(255,255,255,.1) 50%, 
-                    transparent 50%, 
-                    transparent 60%, 
-                    rgba(255,255,255,.1) 60%, 
-                    rgba(255,255,255,.1) 70%, 
-                    transparent 70%, 
-                    transparent 80%, 
-                    rgba(255,255,255,.1) 80%, 
-                    rgba(255,255,255,.1) 90%, 
-                    transparent 90%, 
-                    transparent);
-            animation: barStripes 1s linear infinite;
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.1),
+                    rgba(255,255,255,0.1) 10px,
+                    rgba(255,255,255,0.2) 10px,
+                    rgba(255,255,255,0.2) 20px
+                );
+            animation: moveStripes 1s linear infinite;
         }
-        @keyframes barStripes {
+        @keyframes moveStripes {
             0% { background-position: 0 0; }
-            100% { background-position: 60px 0; }
+            100% { background-position: 28px 0; }
         }
         .percentage {
             position: absolute;
@@ -116,10 +103,10 @@
         <h1 class="title">AI-Enhanced Ambulance System</h1>
         <div class="progress-container">
             <div class="progress-bar">
-                <div class="percentage">5%</div>
+                <div class="percentage">0%</div>
             </div>
         </div>
-        <div class="message">Proje şu an %5 aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
+        <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
         <div class="icon-container">
             <div class="icon">🚑</div>
             <div class="icon">🧠</div>
@@ -131,9 +118,21 @@
         const progressBar = document.querySelector('.progress-bar');
         const percentageText = document.querySelector('.percentage');
         const targetProgress = 5;
+        let currentProgress = 0;
 
-        progressBar.style.width = `${targetProgress}%`;
-        percentageText.textContent = `${targetProgress}%`;
+        function updateProgress() {
+            if (currentProgress < targetProgress) {
+                currentProgress += 0.1;
+                progressBar.style.width = `${currentProgress}%`;
+                percentageText.textContent = `${currentProgress.toFixed(1)}%`;
+                requestAnimationFrame(updateProgress);
+            } else {
+                progressBar.style.width = `${targetProgress}%`;
+                percentageText.textContent = `${targetProgress}%`;
+            }
+        }
+
+        setTimeout(updateProgress, 500); // Start after a short delay
     </script>
 </body>
 </html>
