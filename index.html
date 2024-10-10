@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>AI-Enhanced Ambulance System Progress</title>
-    <!-- Font and Style Links -->
+    <!-- Font ve Stil Bağlantıları -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Leaflet CSS (for the new section) -->
+    <!-- Leaflet CSS (yeni bölüm için) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* ------- Existing Site Styles ------- */
+        /* ------- Mevcut Site Stil Tanımlamaları ------- */
         body {
             display: flex;
             justify-content: center;
@@ -23,12 +23,13 @@
         .container {
             text-align: center;
             width: 80%;
-            max-width: 600px;
+            max-width: 800px; /* Genişliği artırdık */
             z-index: 1;
             background: rgba(0, 10, 30, 0.7);
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            position: relative; /* Z-index etkili olsun diye */
         }
         .progress-container {
             width: 100%;
@@ -167,26 +168,28 @@
             height: 100%;
             z-index: -1;
         }
-        /* ------- End of Existing Site Styles ------- */
+        /* ------- Mevcut Site Stil Tanımlamaları Sonu ------- */
 
-        /* ------- New Section Styles ------- */
-        /* Prefix all IDs and classes with 'opt_' to prevent conflicts */
-        /* General Styles */
+        /* ------- Yeni Bölüm Stil Tanımlamaları ------- */
+        /* IDs and classes prefixed with 'opt_' to prevent conflicts */
+        /* Genel Stil Ayarları */
         #opt_optimization-demo {
             margin-top: 50px;
             width: 100%;
-            height: 800px;
+            min-height: 600px;
             display: flex;
             flex-direction: column;
             background: linear-gradient(135deg, #1f4037, #99f2c8);
             transition: background 0.5s ease;
+            position: relative;
+            z-index: 0;
         }
         #opt_demo-container {
             flex: 1;
             display: flex;
             padding: 20px;
         }
-        /* Map Container */
+        /* Harita Konteyneri */
         #opt_map-container {
             flex: 2;
             border-radius: 10px;
@@ -194,8 +197,9 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
             position: relative;
             z-index: 1;
+            min-height: 500px; /* Haritanın görünmesi için minimum yükseklik belirledik */
         }
-        /* Data Panel */
+        /* Veri Paneli */
         #opt_data-panel {
             flex: 1;
             background: rgba(0, 0, 0, 0.6);
@@ -207,15 +211,16 @@
             flex-direction: column;
             position: relative;
         }
-        /* Controls */
+        /* Kontroller */
         #opt_controls {
             padding: 20px;
             background: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap; /* Responsive tasarım için */
         }
-        /* Buttons */
+        /* Buton Stilleri */
         #opt_optimization-demo button {
             background: #00bcd4;
             color: white;
@@ -226,6 +231,7 @@
             transition: all 0.3s;
             font-size: 18px;
             box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+            margin-bottom: 10px;
         }
         #opt_optimization-demo button:hover {
             background: #0097a7;
@@ -262,7 +268,7 @@
             font-size: 24px;
             margin-left: 10px;
         }
-        /* AI Assistant */
+        /* AI Asistanı */
         #opt_ai-assistant {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -305,7 +311,7 @@
             font-weight: bold;
             color: #00bcd4;
         }
-        /* Optimization Progress Bar */
+        /* Optimizasyon İlerleme Çubuğu */
         #opt_optimization-progress {
             height: 8px;
             background: #ddd;
@@ -321,7 +327,7 @@
             box-shadow: 0 0 10px rgba(0, 188, 212, 0.7);
             transition: width 0.5s ease-out;
         }
-        /* Modal Styles */
+        /* Modal Stili */
         #opt_station-modal {
             display: none;
             position: fixed;
@@ -356,7 +362,7 @@
             text-decoration: none;
             cursor: pointer;
         }
-        /* Custom Scrollbar */
+        /* Scrollbar */
         #opt_ai-messages::-webkit-scrollbar {
             width: 8px;
         }
@@ -367,7 +373,7 @@
         #opt_ai-messages::-webkit-scrollbar-track {
             background: transparent;
         }
-        /* Pulse Marker Styles */
+        /* Pulse Marker Stilleri */
         .opt_pulse-marker {
             border-radius: 50%;
             width: 20px;
@@ -380,12 +386,21 @@
             border-radius: 50%;
             width: 100%;
             height: 100%;
-            animation: pulse 2s infinite;
+            animation: opt_pulse 2s infinite;
             top: 0;
             left: 0;
         }
-        /* Existing pulse keyframes reused */
-        /* Hover Effect for Markers */
+        @keyframes opt_pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        /* Marker Hover Efekti */
         .leaflet-marker-icon {
             transition: transform 0.3s, box-shadow 0.3s;
         }
@@ -393,17 +408,17 @@
             transform: scale(1.3);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
         }
-        /* ------- End of New Section Styles ------- */
+        /* ------- Yeni Bölüm Stil Tanımlamaları Sonu ------- */
     </style>
 </head>
 <body>
-    <!-- Existing Site Content -->
+    <!-- Mevcut Site İçeriği -->
     <canvas id="matrix-bg"></canvas>
     <canvas id="particle-canvas"></canvas>
     
+    <!-- Ambulans SVG'si -->
     <svg id="ambulance" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" width="100" height="50">
-        <!-- Ambulance SVG Content -->
-        <!-- ... your ambulance SVG elements ... -->
+        <!-- Ambulans SVG İçeriği -->
     </svg>
     
     <div class="container" id="passcodeContainer">
@@ -428,7 +443,7 @@
         </div>
         <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
         
-        <!-- New Section Start -->
+        <!-- Yeni Bölüm Başlangıcı -->
         <div id="opt_optimization-demo">
             <div id="opt_demo-container">
                 <div id="opt_map-container"></div>
@@ -465,10 +480,10 @@
                 </div>
             </div>
         </div>
-        <!-- New Section End -->
+        <!-- Yeni Bölüm Sonu -->
     </div>
 
-    <!-- New Section Modal -->
+    <!-- Yeni Bölüm Modal -->
     <div id="opt_station-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -477,11 +492,11 @@
         </div>
     </div>
 
-    <!-- Leaflet JS (for the new section) -->
+    <!-- Leaflet JS (yeni bölüm için) -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- GSAP Animation Library (for the new section) -->
+    <!-- GSAP Animasyon Kütüphanesi (yeni bölüm için) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <!-- Existing Site Scripts -->
+    <!-- Mevcut Site JavaScript Kodları -->
     <script>
         // Passcode kontrolü
         document.getElementById('passcodeForm').addEventListener('submit', function(e) {
@@ -494,17 +509,19 @@
                 alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
         });
-        // Matrix background and particle system scripts
-        // ... (your existing scripts) ...
+        // Matrix arka plan ve parçacık sistemi kodları
+        // ... (Mevcut site JavaScript kodları buraya gelecek) ...
+        // Bu kodların çalıştığından emin olmak için ilgili canvas id'lerinin doğru olduğundan emin olun (matrix-bg, particle-canvas)
     </script>
-    <!-- New Section Scripts -->
+    <!-- Yeni Bölüm JavaScript Kodları -->
     <script>
         (function() {
-            // Prefix all IDs and variables with 'opt_' to prevent conflicts
+            // Yeni bölümün JavaScript kodları
+            // IDs ve değişkenler 'opt_' ile prefixlendi
             const istanbul = [41.0082, 28.9784];
-            // Map creation
+            // Harita oluşturma
             const opt_map = L.map('opt_map-container').setView(istanbul, 10);
-            // Day/Night map layers
+            // Harita katmanları
             const opt_dayLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 19
@@ -513,19 +530,19 @@
                 attribution: '&copy; Stadia Maps, &copy; OpenMapTiles &copy; OpenStreetMap contributors',
                 maxZoom: 20
             });
-            // Add day layer initially
+            // Başlangıçta gündüz haritasını ekle
             opt_dayLayer.addTo(opt_map);
-            // Station data
+            // İstasyon verileri
             const opt_stations = [];
             const opt_stationMarkers = L.layerGroup().addTo(opt_map);
             let opt_totalStations = 300;
-            // Hourly case distribution
+            // Saatlik vaka dağılımı
             const opt_hourlyDistribution = [
                 0.2, 0.1, 0.1, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0,
                 1.0, 0.9, 0.8, 0.8, 0.7, 0.7, 0.8, 0.9, 1.0, 0.9,
                 0.8, 0.6, 0.4, 0.3
             ];
-            // Generate random station data
+            // Rastgele istasyon verileri oluşturma
             for (let i = 0; i < 300; i++) {
                 opt_stations.push({
                     id: i,
@@ -536,12 +553,12 @@
                     active: true
                 });
             }
-            // Color scale function
+            // Renk skalası fonksiyonu
             function opt_getColor(cases) {
                 const threshold = 25;
                 return cases > threshold ? '#ff0000' : '#00ff00';
             }
-            // Create popup content function
+            // Popup içeriği oluşturma fonksiyonu
             function opt_createPopupContent(station) {
                 return `
                     <h3>İstasyon #${station.id}</h3>
@@ -550,7 +567,7 @@
                     <button class="toggle-button" onclick="opt_showStationDetails(${station.id})">Detaylar</button>
                 `;
             }
-            // Add stations to map
+            // İstasyonları haritaya ekleme
             function opt_addStationsToMap() {
                 opt_stationMarkers.clearLayers();
                 opt_stations.forEach((station) => {
@@ -560,11 +577,11 @@
                             iconSize: [20, 20]
                         });
                         const marker = L.marker([station.lat, station.lng], { icon: pulseIcon });
-                        // Scale marker based on case count
+                        // Marker'ı vaka sayısına göre ölçeklendirelim
                         const scale = (station.cases / 50) + 0.5;
                         const newIconSize = [20 * scale, 20 * scale];
                         pulseIcon.options.iconSize = newIconSize;
-                        // Update marker icon
+                        // Marker ikonunu güncelle
                         const iconDiv = pulseIcon.createIcon();
                         iconDiv.style.transform = `scale(${scale})`;
                         iconDiv.style.backgroundColor = opt_getColor(station.cases);
@@ -574,7 +591,7 @@
                             iconSize: newIconSize
                         }));
                         marker.bindPopup(opt_createPopupContent(station));
-                        // Popup button functionality
+                        // Popup açıldığında butonun işlevselliği
                         marker.on('popupopen', () => {
                             const popupNode = marker.getPopup().getElement();
                             const toggleButton = popupNode.querySelector('.toggle-button');
@@ -586,7 +603,7 @@
                     }
                 });
             }
-            // Time slider functionality
+            // Zaman çubuğu işlevselliği
             const opt_timeSlider = document.getElementById('opt_time-slider');
             const opt_currentTime = document.getElementById('opt_current-time');
             opt_timeSlider.addEventListener('input', (e) => {
@@ -595,7 +612,7 @@
                 opt_updateStations(hour);
                 opt_updateMapTheme(hour);
             });
-            // Update map theme based on time
+            // Harita temasını güncelleme fonksiyonu
             function opt_updateMapTheme(hour) {
                 if (hour >= 6 && hour < 18) {
                     opt_map.removeLayer(opt_nightLayer);
@@ -607,7 +624,7 @@
                     document.getElementById('opt_optimization-demo').style.background = 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)';
                 }
             }
-            // Update stations
+            // İstasyonları güncelleme fonksiyonu
             function opt_updateStations(hour) {
                 opt_stations.forEach((station) => {
                     if (station.active) {
@@ -618,7 +635,7 @@
                 opt_addStationsToMap();
                 opt_updateDataPanel();
             }
-            // Update data panel
+            // Veri panelini güncelleme fonksiyonu
             function opt_updateDataPanel() {
                 const totalCases = opt_stations.reduce((sum, station) => sum + (station.active ? station.cases : 0), 0);
                 const activeStations = opt_stations.filter(station => station.active).length;
@@ -645,7 +662,7 @@
                     color: staffStatus === 'Tam' ? '#00bcd4' : '#FF5252'
                 });
             }
-            // Start optimization
+            // Optimizasyon başlatma fonksiyonu
             document.getElementById('opt_start-optimization').addEventListener('click', () => {
                 gsap.to('#opt_start-optimization', { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3 });
                 gsap.to('#opt_optimization-bar', {
@@ -669,7 +686,7 @@
                     opt_updateAIMessage(`Optimizasyon tamamlandı. ${closedStations.length} düşük aktiviteli istasyon kapatıldı. Sistem verimliliği arttı.`);
                 }, 3000);
             });
-            // Update AI messages
+            // AI mesajını güncelleme fonksiyonu
             function opt_updateAIMessage(message) {
                 const aiMessages = document.getElementById('opt_ai-messages');
                 const newMessage = document.createElement('p');
@@ -678,7 +695,7 @@
                 aiMessages.scrollTop = aiMessages.scrollHeight;
                 gsap.from(newMessage, { opacity: 0, y: 20, duration: 0.5 });
             }
-            // Modal functions
+            // Modal fonksiyonları
             const opt_modal = document.getElementById("opt_station-modal");
             const opt_span = opt_modal.querySelector(".close");
             opt_span.onclick = function() {
@@ -703,9 +720,14 @@
                     opt_modal.style.display = "block";
                 }
             }
-            // Initial data update
+            // İlk veri güncellemesi
             opt_updateStations(12);
         })();
+    </script>
+    <!-- Mevcut site JavaScript kodları buraya devam ediyor -->
+    <script>
+        // Matrix arka plan kodları
+        // Bu kodu mevcut kodunuzdan alarak buraya ekleyin, ID'lerin ve değişkenlerin doğru olduğundan emin olun
     </script>
 </body>
 </html>
