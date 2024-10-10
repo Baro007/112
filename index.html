@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>AI-Enhanced Ambulance System Progress</title>
-    <!-- Font ve Stil Bağlantıları -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <!-- Stil Tanımlamaları -->
     <style>
-        /* Genel Stil Ayarları */
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: #000510;
             font-family: 'Roboto', sans-serif;
-            color: #e0e0e0;
+            color: #00FFFF;
             overflow-x: hidden;
         }
         .container {
@@ -66,7 +62,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background:
+            background: 
                 linear-gradient(
                     90deg,
                     rgba(255,255,255,0.1) 0%,
@@ -162,7 +158,6 @@
             from { fill: #FF0000; }
             to { fill: #FFFF00; }
         }
-        /* Arka Plan Canvas'ları */
         #matrix-bg, #particle-canvas {
             position: fixed;
             top: 0;
@@ -171,13 +166,12 @@
             height: 100%;
             z-index: -1;
         }
-        /* Optimizasyon Demo Bölümü Stil Tanımlamaları */
         #opt_optimization-demo {
             width: 80%;
             max-width: 1000px;
             margin-top: 50px;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 10, 30, 0.7);
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
         }
@@ -188,7 +182,7 @@
         }
         #opt_map-container {
             width: 65%;
-            height: 400px;
+            height: 400px; /* Sabit yükseklik eklendi */
             border-radius: 10px;
             overflow: hidden;
         }
@@ -202,96 +196,54 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
         }
         #opt_time-slider {
             width: 60%;
-            margin-right: 10px;
         }
-        #opt_current-time {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        #opt_start-optimization {
-            background: linear-gradient(90deg, #ff8a00, #e52e71);
-            border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 18px;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.5s;
-            margin-top: 10px;
-        }
-        #opt_start-optimization:hover {
-            background: linear-gradient(90deg, #e52e71, #ff8a00);
-        }
-        /* AI Asistanı */
-        #opt_ai-assistant {
-            background: rgba(0, 10, 30, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: flex-start;
-            margin-top: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-        #opt_ai-avatar {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        .opt_pulse-marker {
             border-radius: 50%;
-            margin-right: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 75, 43, 0.7);
-        }
-        #opt_ai-messages {
-            flex-grow: 1;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        #opt_ai-messages p {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-        }
-        /* İlerleme Çubuğu */
-        #opt_optimization-progress {
-            width: 100%;
+            width: 20px;
             height: 20px;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 20px 0;
+            position: relative;
         }
-        #opt_optimization-bar {
-            width: 0%;
+        .opt_pulse-marker::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #00bcd4, #8BC34A);
-            box-shadow: 0 0 10px rgba(0, 188, 212, 0.7);
-            transition: width 0.5s ease-out;
+            animation: opt_pulse 2s infinite;
+            top: 0;
+            left: 0;
         }
-        /* Marker Stilleri */
-        .leaflet-marker-icon {
+        @keyframes opt_pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .leaflet-interactive {
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        .leaflet-marker-icon:hover {
-            transform: scale(1.2);
+        .leaflet-interactive:hover {
+            transform: scale(1.3);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-            z-index: 1000;
+        }
+        #opt_feedback {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <!-- Arka Plan Canvas'ları -->
     <canvas id="matrix-bg"></canvas>
     <canvas id="particle-canvas"></canvas>
     
-    <!-- Ambulans SVG'si -->
     <svg id="ambulance" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" width="100" height="50">
         <rect x="10" y="20" width="80" height="25" fill="#FFFFFF" />
         <rect x="75" y="10" width="15" height="35" fill="#FFFFFF" />
@@ -302,7 +254,6 @@
         <text x="20" y="28" font-family="Arial" font-size="10" fill="#FF0000">112</text>
     </svg>
     
-    <!-- Passcode Giriş Bölümü -->
     <div class="container" id="passcodeContainer">
         <h1 class="title">Güvenli Giriş</h1>
         <form id="passcodeForm">
@@ -311,23 +262,23 @@
         </form>
     </div>
 
-    <!-- İçerik Bölümü -->
-    <div class="container" id="contentContainer" style="display: none;">
-        <h1 class="title">AI-Enhanced Ambulance System</h1>
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="percentage">5%</div>
+    <div id="mainContent" style="display: none;">
+        <div class="container">
+            <h1 class="title">AI-Enhanced Ambulance System</h1>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="percentage">5%</div>
+                </div>
             </div>
+            <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
+            <div class="icon-container">
+                <div class="icon">🚑</div>
+                <div class="icon">🧠</div>
+                <div class="icon">💻</div>
+            </div>
+            <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
         </div>
-        <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
-        <div class="icon-container">
-            <div class="icon">🚑</div>
-            <div class="icon">🧠</div>
-            <div class="icon">💻</div>
-        </div>
-        <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
-    
-        <!-- Optimizasyon Demo Bölümü -->
+
         <div id="opt_optimization-demo">
             <h2>İstanbul 112 Ambulans İstasyonları Optimizasyon Demosu</h2>
             <div id="opt_demo-container">
@@ -350,31 +301,12 @@
                     <span id="opt_current-time">12:00</span>
                 </div>
             </div>
-            <!-- AI Asistanı -->
-            <div id="opt_ai-assistant">
-                <div id="opt_ai-avatar">AI</div>
-                <div id="opt_ai-messages">
-                    <p>Merhaba! Ben AI asistanınızım. Optimizasyon sürecinde size yardımcı olacağım.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Optimizasyon Demo Bölümü Sonu -->
-    </div>
-
-    <!-- Modal -->
-    <div id="opt_station-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>İstasyon Detayları</h2>
-            <div id="opt_station-details"></div>
+            <div id="opt_feedback"></div>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- GSAP Animasyon Kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <!-- JavaScript Kodları -->
     <script>
         // Passcode kontrolü
         document.getElementById('passcodeForm').addEventListener('submit', function(e) {
@@ -382,7 +314,11 @@
             var passcode = document.getElementById('passcodeInput').value;
             if (passcode === 'proje112') {
                 document.getElementById('passcodeContainer').style.display = 'none';
-                document.getElementById('contentContainer').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'block';
+                // Haritayı yeniden boyutlandır
+                if (window.map) {
+                    window.map.invalidateSize();
+                }
             } else {
                 alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
@@ -399,10 +335,10 @@
         matrix = matrix.split("");
 
         var font_size = 10;
-        var columns = matrixCanvas.width / font_size;
+        var columns = matrixCanvas.width/font_size;
         var drops = [];
-        for (var x = 0; x < columns; x++)
-            drops[x] = 1;
+        for(var x = 0; x < columns; x++)
+            drops[x] = 1; 
 
         function drawMatrix() {
             matrixCtx.fillStyle = "rgba(0, 10, 30, 0.04)";
@@ -410,11 +346,11 @@
 
             matrixCtx.fillStyle = "#00FFFF";
             matrixCtx.font = font_size + "px arial";
-            for (var i = 0; i < drops.length; i++) {
-                var text = matrix[Math.floor(Math.random() * matrix.length)];
-                matrixCtx.fillText(text, i * font_size, drops[i] * font_size);
+            for(var i = 0; i < drops.length; i++) {
+                var text = matrix[Math.floor(Math.random()*matrix.length)];
+                matrixCtx.fillText(text, i*font_size, drops[i]*font_size);
 
-                if (drops[i] * font_size > matrixCanvas.height && Math.random() > 0.975)
+                if(drops[i]*font_size > matrixCanvas.height && Math.random() > 0.975)
                     drops[i] = 0;
 
                 drops[i]++;
@@ -432,11 +368,11 @@
         let mouse = {
             x: null,
             y: null,
-            radius: (particleCanvas.height / 80) * (particleCanvas.width / 80)
+            radius: (particleCanvas.height/80) * (particleCanvas.width/80)
         }
 
         window.addEventListener('mousemove',
-            function (event) {
+            function(event) {
                 mouse.x = event.x;
                 mouse.y = event.y;
             }
@@ -464,11 +400,11 @@
                 if (this.y > particleCanvas.height || this.y < 0) {
                     this.directionY = -this.directionY;
                 }
-
+                
                 let dx = mouse.x - this.x;
                 let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < mouse.radius + this.size) {
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius + this.size){
                     if (mouse.x < this.x && this.x < particleCanvas.width - this.size * 10) {
                         this.x += 10;
                     }
@@ -498,15 +434,15 @@
                 let directionX = (Math.random() * 5) - 2.5;
                 let directionY = (Math.random() * 5) - 2.5;
                 let color = '#00FFFF';
-
+                
                 particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
             }
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            particleCtx.clearRect(0, 0, innerWidth, innerHeight);
-
+            particleCtx.clearRect(0,0,innerWidth, innerHeight);
+            
             for (let i = 0; i < particlesArray.length; i++) {
                 particlesArray[i].update();
             }
@@ -517,10 +453,10 @@
             let opacityValue = 1;
             for (let a = 0; a < particlesArray.length; a++) {
                 for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                    let distance = (( particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
                         + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-                    if (distance < (particleCanvas.width / 7) * (particleCanvas.height / 7)) {
-                        opacityValue = 1 - (distance / 20000);
+                    if (distance < (particleCanvas.width/7) * (particleCanvas.height/7)) {
+                        opacityValue = 1 - (distance/20000);
                         particleCtx.strokeStyle = 'rgba(0, 255, 255,' + opacityValue + ')';
                         particleCtx.lineWidth = 1;
                         particleCtx.beginPath();
@@ -532,19 +468,19 @@
             }
         }
 
-        window.addEventListener('resize',
-            function () {
+        window.addEventListener('resize', 
+            function() {
                 matrixCanvas.width = particleCanvas.width = innerWidth;
                 matrixCanvas.height = particleCanvas.height = innerHeight;
-                mouse.radius = ((particleCanvas.height / 80) * (particleCanvas.height / 80));
+                mouse.radius = ((particleCanvas.height/80) * (particleCanvas.height/80));
                 init();
             }
         );
 
         window.addEventListener('mouseout',
-            function () {
+            function() {
                 mouse.x = undefined;
-                mouse.y = undefined;
+                mouse.x = undefined;
             }
         )
 
@@ -553,16 +489,16 @@
         setInterval(drawMatrix, 35);
 
         // Optimizasyon demo bölümü için script
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const istanbul = [41.0082, 28.9784];
-            const map = L.map('opt_map-container').setView(istanbul, 10);
+            window.map = L.map('opt_map-container').setView(istanbul, 10);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+            }).addTo(window.map);
 
             const stations = [];
-            const stationMarkers = L.layerGroup().addTo(map);
+            const stationMarkers = L.layerGroup().addTo(window.map);
 
             for (let i = 0; i < 300; i++) {
                 stations.push({
@@ -593,28 +529,9 @@
                             fillOpacity: 0.8
                         }).addTo(stationMarkers);
 
-                        station.marker = marker; // Marker referansını sakla
-
                         marker.bindPopup(`İstasyon #${station.id}<br>Vaka: ${station.cases}<br>Personel: ${station.staff}`);
                     }
                 });
-            }
-
-            function updateAIMessage(message) {
-                const aiMessages = document.getElementById('opt_ai-messages');
-                const newMessage = document.createElement('p');
-                newMessage.textContent = message;
-                aiMessages.appendChild(newMessage);
-                aiMessages.scrollTop = aiMessages.scrollHeight;
-                gsap.from(newMessage, { opacity: 0, y: 20, duration: 0.5 });
-            }
-
-            function removeStationMarker(station) {
-                const marker = station.marker;
-                marker.setStyle({ opacity: 0 });
-                setTimeout(() => {
-                    stationMarkers.removeLayer(marker);
-                }, 500);
             }
 
             const timeSlider = document.getElementById('opt_time-slider');
@@ -646,63 +563,31 @@
                 document.getElementById('opt_active-cases').textContent = totalCases;
                 document.getElementById('opt_total-stations').textContent = activeStations;
                 document.getElementById('opt_system-efficiency').textContent = `%${efficiency}`;
-
+                
                 const staffStatus = stations.some(station => station.staff < 3 && station.active) ? 'Eksik' : 'Tam';
                 document.getElementById('opt_staff-status').textContent = staffStatus;
                 document.getElementById('opt_staff-status').style.color = staffStatus === 'Tam' ? '#00bcd4' : '#FF5252';
             }
 
             document.getElementById('opt_start-optimization').addEventListener('click', () => {
-                gsap.to('#opt_start-optimization', { scale: 1.1, yoyo: true, repeat: 1, duration: 0.2 });
-                updateAIMessage("Optimizasyon başlatılıyor...");
-
-                gsap.to('#opt_optimization-bar', {
-                    width: '100%',
-                    duration: 3,
-                    ease: 'power1.inOut'
-                });
+                const feedbackElement = document.getElementById('opt_feedback');
+                feedbackElement.style.display = 'block';
+                feedbackElement.innerHTML = 'Optimizasyon başlatılıyor...';
+                feedbackElement.style.animation = 'fadeInOut 2s infinite';
 
                 setTimeout(() => {
                     const closedStations = stations.filter(station => station.baseCases < 10 && station.active).slice(0, 30);
                     closedStations.forEach(station => {
                         station.active = false;
-                        removeStationMarker(station);
                     });
+                    addStationsToMap();
                     updateDataPanel();
-                    updateAIMessage("Optimizasyon tamamlandı! Sistemin verimliliği arttı.");
 
-                    gsap.to('#opt_optimization-bar', {
-                        width: '0%',
-                        delay: 1,
-                        duration: 1
-                    });
+                    feedbackElement.innerHTML = `Optimizasyon tamamlandı. ${closedStations.length} düşük aktiviteli istasyon kapatıldı.`;
+                    feedbackElement.style.animation = 'none';
+                    gsap.from(feedbackElement, {opacity: 0, y: 20, duration: 1});
                 }, 3000);
             });
-
-            // Modal fonksiyonları
-            const modal = document.getElementById("opt_station-modal");
-            const span = modal.querySelector(".close");
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-            window.showStationDetails = function(stationId) {
-                const station = stations.find(s => s.id === stationId);
-                if (station) {
-                    const detailsHtml = `
-                        <h3>İstasyon #${station.id}</h3>
-                        <p>Konum: ${station.lat.toFixed(4)}, ${station.lng.toFixed(4)}</p>
-                        <p>Ortalama Günlük Vaka: ${station.baseCases}</p>
-                        <p>Mevcut Personel: ${station.staff}</p>
-                    `;
-                    document.getElementById('opt_station-details').innerHTML = detailsHtml;
-                    modal.style.display = "block";
-                }
-            }
 
             updateStations(12);
         });
