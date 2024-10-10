@@ -13,14 +13,15 @@
             height: 100vh;
             margin: 0;
             background: #0f0c29;
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
             font-family: 'Roboto', sans-serif;
             color: #ffffff;
+            overflow: hidden;
         }
         .container {
             text-align: center;
             width: 80%;
             max-width: 600px;
+            z-index: 1;
         }
         .progress-container {
             width: 100%;
@@ -134,9 +135,30 @@
         #submitPasscode:hover {
             background-color: #2a5db2;
         }
+        #ambulance {
+            position: absolute;
+            top: 10px;
+            left: -100px;
+            font-size: 50px;
+            animation: moveAmbulance 10s linear infinite;
+        }
+        @keyframes moveAmbulance {
+            0% { left: -100px; }
+            100% { left: 100%; }
+        }
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
+    <canvas id="matrix-bg"></canvas>
+    <div id="ambulance">🚑</div>
     <div class="container" id="passcodeContainer">
         <h1 class="title">Güvenli Giriş</h1>
         <form id="passcodeForm">
@@ -171,6 +193,41 @@
                 alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
         });
+
+        // Matrix background
+        var c = document.getElementById("matrix-bg");
+        var ctx = c.getContext("2d");
+
+        c.height = window.innerHeight;
+        c.width = window.innerWidth;
+
+        var matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+        matrix = matrix.split("");
+
+        var font_size = 10;
+        var columns = c.width/font_size;
+        var drops = [];
+        for(var x = 0; x < columns; x++)
+            drops[x] = 1; 
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            ctx.fillStyle = "#0F0";
+            ctx.font = font_size + "px arial";
+            for(var i = 0; i < drops.length; i++) {
+                var text = matrix[Math.floor(Math.random()*matrix.length)];
+                ctx.fillText(text, i*font_size, drops[i]*font_size);
+
+                if(drops[i]*font_size > c.height && Math.random() > 0.975)
+                    drops[i] = 0;
+
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
     </script>
 </body>
 </html>
