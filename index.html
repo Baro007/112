@@ -22,6 +22,10 @@
             width: 80%;
             max-width: 600px;
             z-index: 1;
+            background: rgba(0, 10, 30, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
         }
         .progress-container {
             width: 100%;
@@ -39,12 +43,15 @@
             background: linear-gradient(90deg, #00FFFF, #007BFF);
             border-radius: 15px;
             position: relative;
-            animation: fillProgress 2s ease-out forwards;
-            box-shadow: 0 0 10px #00FFFF;
+            animation: fillProgress 2s ease-out forwards, glowingBar 2s infinite alternate;
         }
         @keyframes fillProgress {
             from { width: 0%; }
             to { width: 5%; }
+        }
+        @keyframes glowingBar {
+            from { box-shadow: 0 0 5px #00FFFF; }
+            to { box-shadow: 0 0 20px #00FFFF; }
         }
         .progress-bar::before {
             content: '';
@@ -75,24 +82,14 @@
             font-weight: bold;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
         }
-        .message {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
         .title, .message {
             color: #00FFFF;
             text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
             animation: holographic 5s ease-in-out infinite;
         }
         @keyframes holographic {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
+            0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.8; transform: scale(1.05) rotate(2deg); }
         }
         .icon-container {
             display: flex;
@@ -131,10 +128,11 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
         #submitPasscode:hover {
             background-color: #0056b3;
+            transform: scale(1.05);
         }
         #ambulance {
             position: absolute;
@@ -157,7 +155,7 @@
             from { fill: #FF0000; }
             to { fill: #FFFF00; }
         }
-        #matrix-bg {
+        #matrix-bg, #particle-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -169,6 +167,8 @@
 </head>
 <body>
     <canvas id="matrix-bg"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    
     <svg id="ambulance" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" width="100" height="50">
         <rect x="10" y="20" width="80" height="25" fill="#FFFFFF" />
         <rect x="75" y="10" width="15" height="35" fill="#FFFFFF" />
@@ -178,6 +178,7 @@
         <rect x="50" y="10" width="10" height="10" fill="#FF0000" />
         <text x="20" y="28" font-family="Arial" font-size="10" fill="#FF0000">112</text>
     </svg>
+    
     <div class="container" id="passcodeContainer">
         <h1 class="title">Güvenli Giriş</h1>
         <form id="passcodeForm">
@@ -202,6 +203,7 @@
     </div>
 
     <script>
+        // Passcode kontrolü
         document.getElementById('passcodeForm').addEventListener('submit', function(e) {
             e.preventDefault();
             var passcode = document.getElementById('passcodeInput').value;
@@ -213,39 +215,168 @@
             }
         });
 
-        // Matrix background
-        var c = document.getElementById("matrix-bg");
-        var ctx = c.getContext("2d");
+        // Matrix arka plan
+        var matrixCanvas = document.getElementById("matrix-bg");
+        var matrixCtx = matrixCanvas.getContext("2d");
 
-        c.height = window.innerHeight;
-        c.width = window.innerWidth;
+        matrixCanvas.height = window.innerHeight;
+        matrixCanvas.width = window.innerWidth;
 
         var matrix = "10ABCDEF";
         matrix = matrix.split("");
 
         var font_size = 10;
-        var columns = c.width/font_size;
+        var columns = matrixCanvas.width/font_size;
         var drops = [];
         for(var x = 0; x < columns; x++)
             drops[x] = 1; 
 
         function drawMatrix() {
-            ctx.fillStyle = "rgba(0, 10, 30, 0.1)";
-            ctx.fillRect(0, 0, c.width, c.height);
+            matrixCtx.fillStyle = "rgba(0, 10, 30, 0.04)";
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
 
-            ctx.fillStyle = "#00FFFF";
-            ctx.font = font_size + "px arial";
+            matrixCtx.fillStyle = "#00FFFF";
+            matrixCtx.font = font_size + "px arial";
             for(var i = 0; i < drops.length; i++) {
                 var text = matrix[Math.floor(Math.random()*matrix.length)];
-                ctx.fillText(text, i*font_size, drops[i]*font_size);
+                matrixCtx.fillText(text, i*font_size, drops[i]*font_size);
 
-                if(drops[i]*font_size > c.height && Math.random() > 0.975)
+                if(drops[i]*font_size > matrixCanvas.height && Math.random() > 0.975)
                     drops[i] = 0;
 
                 drops[i]++;
             }
         }
 
+        // Parçacık sistemi
+        const particleCanvas = document.getElementById('particle-canvas');
+        const particleCtx = particleCanvas.getContext('2d');
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        let mouse = {
+            x: null,
+            y: null,
+            radius: (particleCanvas.height/80) * (particleCanvas.width/80)
+        }
+
+        window.addEventListener('mousemove',
+            function(event) {
+                mouse.x = event.x;
+                mouse.y = event.y;
+            }
+        );
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                particleCtx.beginPath();
+                particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                particleCtx.fillStyle = '#00FFFF';
+                particleCtx.fill();
+            }
+            update() {
+                if (this.x > particleCanvas.width || this.x < 0) {
+                    this.directionX = -this.directionX;
+                }
+                if (this.y > particleCanvas.height || this.y < 0) {
+                    this.directionY = -this.directionY;
+                }
+                
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius + this.size){
+                    if (mouse.x < this.x && this.x < particleCanvas.width - this.size * 10) {
+                        this.x += 10;
+                    }
+                    if (mouse.x > this.x && this.x > this.size * 10) {
+                        this.x -= 10;
+                    }
+                    if (mouse.y < this.y && this.y < particleCanvas.height - this.size * 10) {
+                        this.y += 10;
+                    }
+                    if (mouse.y > this.y && this.y > this.size * 10) {
+                        this.y -= 10;
+                    }
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (particleCanvas.height * particleCanvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 5) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 5) - 2.5;
+                let directionY = (Math.random() * 5) - 2.5;
+                let color = '#00FFFF';
+                
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particleCtx.clearRect(0,0,innerWidth, innerHeight);
+            
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connect();
+        }
+
+        function connect() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = (( particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                        + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (particleCanvas.width/7) * (particleCanvas.height/7)) {
+                        opacityValue = 1 - (distance/20000);
+                        particleCtx.strokeStyle = 'rgba(0, 255, 255,' + opacityValue + ')';
+                        particleCtx.lineWidth = 1;
+                        particleCtx.beginPath();
+                        particleCtx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        particleCtx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        particleCtx.stroke();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', 
+            function() {
+                matrixCanvas.width = particleCanvas.width = innerWidth;
+                matrixCanvas.height = particleCanvas.height = innerHeight;
+                mouse.radius = ((particleCanvas.height/80) * (particleCanvas.height/80));
+                init();
+            }
+        );
+
+        window.addEventListener('mouseout',
+            function() {
+                mouse.x = undefined;
+                mouse.x = undefined;
+            }
+        )
+
+        init();
+        animate();
         setInterval(drawMatrix, 35);
     </script>
 </body>
