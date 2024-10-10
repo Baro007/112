@@ -227,6 +227,17 @@
             transform: scale(1.3);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
         }
+        #opt_feedback {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -251,51 +262,46 @@
         </form>
     </div>
 
-    <div class="container" id="contentContainer" style="display: none;">
-        <h1 class="title">AI-Enhanced Ambulance System</h1>
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="percentage">5%</div>
-            </div>
-        </div>
-        <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
-        <div class="icon-container">
-            <div class="icon">🚑</div>
-            <div class="icon">🧠</div>
-            <div class="icon">💻</div>
-        </div>
-        <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
-    </div>
-
-    <div id="opt_optimization-demo">
-        <h2>İstanbul 112 Ambulans İstasyonları Optimizasyon Demosu</h2>
-        <div id="opt_demo-container">
-            <div id="opt_map-container"></div>
-            <div id="opt_data-panel">
-                <h3>Genel İstatistikler</h3>
-                <p>Toplam İstasyon: <span id="opt_total-stations">300</span></p>
-                <p>Aktif Vakalar: <span id="opt_active-cases">0</span></p>
-                <p>Personel Durumu: <span id="opt_staff-status">Tam</span></p>
-                <p>Sistem Verimliliği: <span id="opt_system-efficiency">%100</span></p>
-                <div id="opt_optimization-progress">
-                    <div id="opt_optimization-bar"></div>
+    <div id="mainContent" style="display: none;">
+        <div class="container">
+            <h1 class="title">AI-Enhanced Ambulance System</h1>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="percentage">5%</div>
                 </div>
             </div>
-        </div>
-        <div id="opt_controls">
-            <button id="opt_start-optimization">Optimizasyonu Başlat</button>
-            <div style="display: flex; align-items: center;">
-                <input type="range" id="opt_time-slider" min="0" max="23" value="12">
-                <span id="opt_current-time">12:00</span>
+            <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
+            <div class="icon-container">
+                <div class="icon">🚑</div>
+                <div class="icon">🧠</div>
+                <div class="icon">💻</div>
             </div>
+            <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
         </div>
-    </div>
 
-    <div id="opt_station-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>İstasyon Detayları</h2>
-            <div id="opt_station-details"></div>
+        <div id="opt_optimization-demo">
+            <h2>İstanbul 112 Ambulans İstasyonları Optimizasyon Demosu</h2>
+            <div id="opt_demo-container">
+                <div id="opt_map-container"></div>
+                <div id="opt_data-panel">
+                    <h3>Genel İstatistikler</h3>
+                    <p>Toplam İstasyon: <span id="opt_total-stations">300</span></p>
+                    <p>Aktif Vakalar: <span id="opt_active-cases">0</span></p>
+                    <p>Personel Durumu: <span id="opt_staff-status">Tam</span></p>
+                    <p>Sistem Verimliliği: <span id="opt_system-efficiency">%100</span></p>
+                    <div id="opt_optimization-progress">
+                        <div id="opt_optimization-bar"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="opt_controls">
+                <button id="opt_start-optimization">Optimizasyonu Başlat</button>
+                <div style="display: flex; align-items: center;">
+                    <input type="range" id="opt_time-slider" min="0" max="23" value="12">
+                    <span id="opt_current-time">12:00</span>
+                </div>
+            </div>
+            <div id="opt_feedback"></div>
         </div>
     </div>
 
@@ -308,7 +314,7 @@
             var passcode = document.getElementById('passcodeInput').value;
             if (passcode === 'proje112') {
                 document.getElementById('passcodeContainer').style.display = 'none';
-                document.getElementById('contentContainer').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'block';
             } else {
                 alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
@@ -560,12 +566,23 @@
             }
 
             document.getElementById('opt_start-optimization').addEventListener('click', () => {
-                const closedStations = stations.filter(station => station.baseCases < 10 && station.active).slice(0, 30);
-                closedStations.forEach(station => {
-                    station.active = false;
-                });
-                addStationsToMap();
-                updateDataPanel();
+                const feedbackElement = document.getElementById('opt_feedback');
+                feedbackElement.style.display = 'block';
+                feedbackElement.innerHTML = 'Optimizasyon başlatılıyor...';
+                feedbackElement.style.animation = 'fadeInOut 2s infinite';
+
+                setTimeout(() => {
+                    const closedStations = stations.filter(station => station.baseCases < 10 && station.active).slice(0, 30);
+                    closedStations.forEach(station => {
+                        station.active = false;
+                    });
+                    addStationsToMap();
+                    updateDataPanel();
+
+                    feedbackElement.innerHTML = `Optimizasyon tamamlandı. ${closedStations.length} düşük aktiviteli istasyon kapatıldı.`;
+                    feedbackElement.style.animation = 'none';
+                    gsap.from(feedbackElement, {opacity: 0, y: 20, duration: 1});
+                }, 3000);
             });
 
             updateStations(12);
