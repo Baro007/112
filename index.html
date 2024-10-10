@@ -182,7 +182,7 @@
         }
         #opt_map-container {
             width: 65%;
-            height: 400px;
+            height: 400px; /* Sabit yükseklik eklendi */
             border-radius: 10px;
             overflow: hidden;
         }
@@ -315,6 +315,10 @@
             if (passcode === 'proje112') {
                 document.getElementById('passcodeContainer').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
+                // Haritayı yeniden boyutlandır
+                if (window.map) {
+                    window.map.invalidateSize();
+                }
             } else {
                 alert('Yanlış passcode. Lütfen tekrar deneyin.');
             }
@@ -487,14 +491,14 @@
         // Optimizasyon demo bölümü için script
         document.addEventListener('DOMContentLoaded', function() {
             const istanbul = [41.0082, 28.9784];
-            const map = L.map('opt_map-container').setView(istanbul, 10);
+            window.map = L.map('opt_map-container').setView(istanbul, 10);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+            }).addTo(window.map);
 
             const stations = [];
-            const stationMarkers = L.layerGroup().addTo(map);
+            const stationMarkers = L.layerGroup().addTo(window.map);
 
             for (let i = 0; i < 300; i++) {
                 stations.push({
