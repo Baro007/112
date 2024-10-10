@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambulans Progress Bar</title>
+    <title>Teknolojik Ambulans Progress Bar</title>
     <style>
         body {
             display: flex;
@@ -11,21 +11,22 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #1a1a2e;
             font-family: Arial, sans-serif;
         }
         .progress-container {
             width: 300px;
             height: 60px;
-            background-color: #ddd;
+            background-color: #16213e;
             border-radius: 30px;
             overflow: hidden;
             position: relative;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
         .progress-bar {
             width: 5%;
             height: 100%;
-            background-color: #ff4136;
+            background: linear-gradient(90deg, #0f3460, #e94560);
             border-radius: 30px;
             transition: width 0.5s ease-in-out;
             position: relative;
@@ -40,6 +41,7 @@
             background-color: #fff;
             border-radius: 5px;
             overflow: hidden;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
         .ambulance::before {
             content: '';
@@ -48,7 +50,7 @@
             left: 0;
             width: 100%;
             height: 50%;
-            background-color: #ff4136;
+            background-color: #e94560;
         }
         .ambulance::after {
             content: '🚑';
@@ -68,10 +70,21 @@
             background-color: #4286f4;
             border-radius: 50%;
             animation: blink 0.5s infinite alternate;
+            box-shadow: 0 0 10px #4286f4;
         }
         @keyframes blink {
             from { opacity: 1; }
             to { opacity: 0; }
+        }
+        .percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
     </style>
 </head>
@@ -82,17 +95,29 @@
                 <div class="siren"></div>
             </div>
         </div>
+        <div class="percentage">5%</div>
     </div>
 
     <script>
         const progressBar = document.querySelector('.progress-bar');
+        const percentageText = document.querySelector('.percentage');
         let progress = 5;
 
         function updateProgress() {
             progressBar.style.width = `${progress}%`;
+            percentageText.textContent = `${progress}%`;
+        }
+
+        function incrementProgress() {
+            if (progress < 100) {
+                progress += 1;
+                updateProgress();
+                setTimeout(incrementProgress, 100);
+            }
         }
 
         updateProgress();
+        setTimeout(incrementProgress, 1000);
     </script>
 </body>
 </html>
