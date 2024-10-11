@@ -1,18 +1,29 @@
 import pandas as pd
 import geopandas as gpd
 import folium
-from folium import plugins
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
 import io
 import base64
+from shapely.geometry import Polygon, Point
 
-# İstanbul ilçe sınırlarını içeren GeoJSON dosyasını yükle
-istanbul = gpd.read_file('istanbul_districts.geojson')
+# Adım 1: İstanbul'un basitleştirilmiş sınırlarını oluştur
+istanbul = gpd.GeoDataFrame({
+    'name': ['Fatih', 'Beyoglu', 'Kadikoy', 'Uskudar', 'Besiktas'],
+    'geometry': [
+        Polygon([(28.9, 41.0), (29.0, 41.0), (29.0, 41.1), (28.9, 41.1)]),
+        Polygon([(28.95, 41.0), (29.05, 41.0), (29.05, 41.1), (28.95, 41.1)]),
+        Polygon([(29.0, 40.9), (29.1, 40.9), (29.1, 41.0), (29.0, 41.0)]),
+        Polygon([(29.0, 41.0), (29.1, 41.0), (29.1, 41.1), (29.0, 41.1)]),
+        Polygon([(28.98, 41.03), (29.08, 41.03), (29.08, 41.13), (28.98, 41.13)])
+    ]
+})
+istanbul.crs = "EPSG:4326"  # CRS'i ayarla
 
-# Rastgele ambulans istasyonları oluştur
+# Adım 2: Rastgele ambulans istasyonları oluştur
+np.random.seed(42)
 num_stations = 300
 stations = pd.DataFrame({
     'station_id': range(num_stations),
@@ -23,22 +34,23 @@ stations = pd.DataFrame({
     'daily_cases': np.random.randint(5, 50, num_stations)
 })
 
-# İstasyonları ilçelere atama
-stations['district'] = gpd.GeoDataFrame(
-    stations, geometry=gpd.points_from_xy(stations.lon, stations.lat)
-).sjoin(istanbul)['name']
+# Adım 3: İstasyonları ilçelere atama
+stations['geometry'] = gpd.points_from_xy(stations.lon, stations.lat)
+stations_gdf = gpd.GeoDataFrame(stations, geometry='geometry', crs="EPSG:4326")
+stations_gdf = gpd.sjoin(stations_gdf, istanbul, how="left", predicate='within')
+stations_gdf['district'] = stations_gdf['name'].fillna('Other')
 
-# Optimizasyon fonksiyonu
+# Adım 4: Optimizasyon fonksiyonu
 def optimize_stations(stations, threshold):
     score = stations['daily_cases'] * stations['staff'] * stations['ambulances']
     return stations[score > threshold].copy()
 
-# Harita oluşturma fonksiyonu
+# Adım 5: Harita oluşturma fonksiyonu
 def create_map(stations, step):
     m = folium.Map(location=[41.0, 29.0], zoom_start=10)
     
     # İlçe sınırlarını ekle
-    folium.GeoJson(istanbul).add_to(m)
+    folium.GeoJson(istanbul, style_function=lambda x: {'fillColor': 'lightblue', 'color': 'black'}).add_to(m)
     
     # İstasyonları ekle
     for _, station in stations.iterrows():
@@ -57,9 +69,9 @@ def create_map(stations, step):
     
     return m
 
-# İstatistik grafiği oluşturma fonksiyonu
+# Adım 6: İstatistik grafiği oluşturma fonksiyonu
 def create_stats_plot(stations_history):
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 14))
     
     steps = range(len(stations_history))
     stations_count = [len(s) for s in stations_history]
@@ -67,52 +79,63 @@ def create_stats_plot(stations_history):
     total_ambulances = [s['ambulances'].sum() for s in stations_history]
     total_cases = [s['daily_cases'].sum() for s in stations_history]
     
-    ax1.plot(steps, stations_count, label='Stations')
-    ax1.plot(steps, total_staff, label='Total Staff')
-    ax1.plot(steps, total_ambulances, label='Total Ambulances')
+    ax1.plot(steps, stations_count, label='Stations', marker='o')
+    ax1.plot(steps, total_staff, label='Total Staff', marker='s')
+    ax1.plot(steps, total_ambulances, label='Total Ambulances', marker='^')
     ax1.set_xlabel('Optimization Step')
     ax1.set_ylabel('Count')
     ax1.legend()
-    ax1.set_title('Optimization Progress')
+    ax1.set_title('Optimization Progress', fontsize=16)
+    ax1.grid(True, linestyle='--', alpha=0.7)
     
-    sns.boxplot(data=pd.DataFrame(stations_history).melt(var_name='Metric', value_name='Value'), 
-                x='Metric', y='Value', ax=ax2)
-    ax2.set_title('Distribution of Metrics Across Optimization Steps')
+    data = pd.DataFrame({
+        'Stations': stations_count,
+        'Total Staff': total_staff,
+        'Total Ambulances': total_ambulances,
+        'Total Daily Cases': total_cases
+    })
+    sns.boxplot(data=data.melt(var_name='Metric', value_name='Value'), x='Metric', y='Value', ax=ax2)
+    ax2.set_title('Distribution of Metrics Across Optimization Steps', fontsize=16)
+    ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45, ha='right')
+    ax2.tick_params(axis='x', rotation=45)  # Bu satırı ekleyin
+    ax2.grid(True, linestyle='--', alpha=0.7)
     
     plt.tight_layout()
     return fig
 
-# Ana simülasyon döngüsü
+# Adım 7: Ana simülasyon döngüsü
 stations_history = []
 maps = []
 num_steps = 20
 
-for step in tqdm(range(num_steps)):
+for step in tqdm(range(num_steps), desc="Optimizasyon İlerlemesi"):
     threshold = step * 100
-    optimized_stations = optimize_stations(stations, threshold)
+    optimized_stations = optimize_stations(stations_gdf, threshold)
     stations_history.append(optimized_stations)
     maps.append(create_map(optimized_stations, step))
 
-# İstatistik grafiğini oluştur
+# Adım 8: İstatistik grafiğini oluştur
 stats_plot = create_stats_plot(stations_history)
 
-# Grafiği base64'e dönüştür
+# Adım 9: Grafiği base64'e dönüştür
 buf = io.BytesIO()
-stats_plot.savefig(buf, format='png')
+stats_plot.savefig(buf, format='png', dpi=300, bbox_inches='tight')
 buf.seek(0)
 string = base64.b64encode(buf.read()).decode('utf-8')
 stats_html = f'<img src="data:image/png;base64,{string}">'
 
-# HTML raporu oluştur
+# Adım 10: HTML raporu oluştur
 html_content = """
 <!DOCTYPE html>
 <html>
 <head>
     <title>Istanbul 112 Ambulance Station Optimization</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .map-container { display: flex; flex-wrap: wrap; justify-content: center; }
-        .map { margin: 10px; }
+        body {{ font-family: Arial, sans-serif; background-color: #f0f0f0; }}
+        h1, h2 {{ color: #333; text-align: center; }}
+        .map-container {{ display: flex; flex-wrap: wrap; justify-content: center; background-color: white; padding: 20px; border-radius: 10px; }}
+        .map {{ margin: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
+        .stats {{ text-align: center; margin-top: 20px; }}
     </style>
 </head>
 <body>
@@ -121,7 +144,9 @@ html_content = """
         {maps}
     </div>
     <h2>Optimization Statistics</h2>
-    {stats}
+    <div class="stats">
+        {stats}
+    </div>
 </body>
 </html>
 """
@@ -129,7 +154,7 @@ html_content = """
 map_html = ''.join([m.get_root().render() for m in maps])
 html_content = html_content.format(maps=map_html, stats=stats_html)
 
-# HTML dosyasını kaydet
+# Adım 11: HTML dosyasını kaydet
 with open('istanbul_112_optimization_report.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
