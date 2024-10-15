@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>AI-Enhanced Ambulance System Progress</title>
+    <!-- Font ve Stil Dosyaları -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS ve JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <!-- GSAP ve Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Stil Dosyası -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Arka Plan Animasyonları -->
+    <canvas id="matrix-bg"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    
+    <!-- Ambulans SVG Animasyonu -->
+    <svg id="ambulance" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" width="100" height="50">
+        <!-- SVG İçeriği -->
+        <rect x="10" y="20" width="80" height="25" fill="#FFFFFF" />
+        <rect x="75" y="10" width="15" height="35" fill="#FFFFFF" />
+        <rect x="10" y="30" width="80" height="5" fill="#FF0000" />
+        <circle cx="25" cy="45" r="5" fill="#333333" />
+        <circle cx="75" cy="45" r="5" fill="#333333" />
+        <rect x="50" y="10" width="10" height="10" fill="#FF0000" />
+        <text x="20" y="28" font-family="Arial" font-size="10" fill="#FF0000">112</text>
+    </svg>
+    
+    <!-- Güvenli Giriş Formu -->
+    <div class="container" id="passcodeContainer">
+        <h1 class="title">Güvenli Giriş</h1>
+        <form id="passcodeForm">
+            <input type="text" id="passcodeInput" placeholder="Passcode girin" required>
+            <button type="submit" id="submitPasscode">Giriş</button>
+        </form>
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div id="mainContent" style="display: none;">
+        <!-- Başlık ve İlerleme Çubuğu -->
+        <div class="container">
+            <h1 class="title">AI-Enhanced Ambulance System</h1>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="percentage">5%</div>
+                </div>
+            </div>
+            <div class="message">Proje başlangıç aşamasında. Yapay zeka entegrasyonu devam ediyor!</div>
+            <div class="icon-container">
+                <div class="icon">🚑</div>
+                <div class="icon">🧠</div>
+                <div class="icon">💻</div>
+            </div>
+            <button id="viewMinutesBtn" onclick="window.open('https://drive.google.com/file/d/1ikOzle_C1WoOjwOKeQzisETd3tXZUFfq/view?usp=sharing', '_blank')">Toplantı Tutanağını Görüntüle</button>
+        </div>
+        
+        <!-- Optimizasyon Demosu -->
+        <div id="opt_optimization-demo">
+            <h2>İstanbul 112 Ambulans İstasyonları Optimizasyon Demosu</h2>
+            <div id="opt_demo-container">
+                <!-- Harita ve Veri Paneli -->
+                <div id="opt_map-container"></div>
+                <div id="opt_data-panel">
+                    <h3>Genel İstatistikler</h3>
+                    <p>Toplam İstasyon: <span id="opt_total-stations">300</span></p>
+                    <p>Aktif Vakalar: <span id="opt_active-cases">0</span></p>
+                    <p>Personel Durumu: <span id="opt_staff-status">Tam</span></p>
+                    <p>Sistem Verimliliği: <span id="opt_system-efficiency">%100</span></p>
+                </div>
+            </div>
+            <!-- Kontrol Paneli -->
+            <div class="control-panel">
+                <div class="slider-container">
+                    <label for="opt_time-slider">Saat:</label>
+                    <input type="range" id="opt_time-slider" min="0" max="23" value="12">
+                    <span id="opt_current-time" class="time-display">12:00</span>
+                </div>
+                <button id="opt_start-optimization" class="control-button">Optimizasyonu Başlat</button>
+                <button id="opt_reset-simulation" class="control-button">Simülasyonu Sıfırla</button>
+                <select id="scenario-select">
+                    <option value="normal">Normal Gün</option>
+                    <option value="busy">Yoğun Gün</option>
+                    <option value="holiday">Tatil Günü</option>
+                </select>
+            </div>
+            <!-- İstatistikler ve Grafikler -->
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div>Ortalama Yanıt Süresi</div>
+                    <div id="avg-response-time" class="stat-value">0 dk</div>
+                </div>
+                <div class="stat-box">
+                    <div>Aktif Ambulanslar</div>
+                    <div id="active-ambulances" class="stat-value">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>Günlük Vaka</div>
+                    <div id="daily-cases" class="stat-value">0</div>
+                </div>
+            </div>
+            <div class="mini-chart">
+                <canvas id="casesChart"></canvas>
+            </div>
+            <div class="mini-chart">
+                <canvas id="efficiencyChart"></canvas>
+            </div>
+            <!-- İstasyon Detayları -->
+            <div id="station-details" class="station-details">
+                <h3>İstasyon Detayları</h3>
+                <p>ID: <span id="station-id"></span></p>
+                <p>Personel: <span id="station-staff"></span></p>
+                <p>Ambulans: <span id="station-ambulances"></span></p>
+                <p>Günlük Vaka: <span id="station-cases"></span></p>
+                <p>Verimlilik: <span id="station-efficiency"></span></p>
+            </div>
+            <div id="opt_feedback"></div>
+        </div>
+    </div>
+    
+    <!-- Ana JavaScript Dosyası -->
+    <script src="script.js"></script>
+</body>
+</html>
