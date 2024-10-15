@@ -1,0 +1,406 @@
+```css
+/* Genel Stil */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: #000510;
+    font-family: 'Roboto', sans-serif;
+    color: #00FFFF;
+    overflow-x: hidden;
+}
+
+/* Konteyner */
+.container {
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+    z-index: 1;
+    background: rgba(0, 10, 30, 0.7);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    margin-bottom: 30px;
+    position: relative;
+}
+
+/* İlerleme Çubuğu */
+.progress-container {
+    width: 100%;
+    height: 30px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    margin: 20px auto;
+}
+
+.progress-bar {
+    width: 5%;
+    height: 100%;
+    background: linear-gradient(90deg, #00FFFF, #007BFF);
+    border-radius: 15px;
+    position: relative;
+    animation: fillProgress 2s ease-out forwards, glowingBar 2s infinite alternate;
+}
+
+@keyframes fillProgress {
+    from { width: 0%; }
+    to { width: 5%; }
+}
+
+@keyframes glowingBar {
+    from { box-shadow: 0 0 5px #00FFFF; }
+    to { box-shadow: 0 0 20px #00FFFF; }
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.1) 0%,
+            rgba(255,255,255,0.3) 50%,
+            rgba(255,255,255,0.1) 100%
+        );
+    animation: moveStripes 1s linear infinite;
+}
+
+@keyframes moveStripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 0; }
+}
+
+.percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+}
+
+.title, .message {
+    color: #00FFFF;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+    animation: holographic 5s ease-in-out infinite;
+}
+
+@keyframes holographic {
+    0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    50% { opacity: 0.8; transform: scale(1.05) rotate(2deg); }
+}
+
+.icon-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+}
+
+.icon {
+    font-size: 40px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Güvenli Giriş Formu */
+#passcodeForm {
+    background: rgba(0, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+#passcodeInput {
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    margin-right: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #00FFFF;
+}
+
+#submitPasscode, #viewMinutesBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 20px;
+}
+
+#submitPasscode:hover, #viewMinutesBtn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Ambulans SVG Animasyonu */
+#ambulance {
+    position: absolute;
+    top: 10px;
+    left: -100px;
+    animation: moveAmbulance 15s linear infinite, bounce 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes moveAmbulance {
+    0% { left: -100px; }
+    100% { left: 100%; }
+}
+
+@keyframes bounce {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-5px); }
+}
+
+#ambulance rect:nth-child(6) {
+    animation: flash 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes flash {
+    from { fill: #FF0000; }
+    to { fill: #FFFF00; }
+}
+
+/* Arka Plan */
+#matrix-bg, #particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* Optimizasyon Demo Stili */
+#opt_optimization-demo {
+    width: 80%;
+    max-width: 1000px;
+    margin-top: 50px;
+    padding: 20px;
+    background: rgba(0, 10, 30, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+#opt_demo-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#opt_map-container {
+    width: 65%;
+    height: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#opt_data-panel {
+    width: 30%;
+    padding: 10px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+#opt_controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Kontrol Paneli */
+.control-panel {
+    background: rgba(0, 10, 30, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.control-button {
+    background: linear-gradient(to right, #007BFF, #00FFFF);
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 18px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.5s, transform 0.3s;
+}
+
+.control-button:hover {
+    background: linear-gradient(to right, #00FFFF, #007BFF);
+    transform: scale(1.05);
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.slider-container label {
+    margin-right: 10px;
+    color: #00FFFF;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #00FFFF;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007BFF;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007BFF;
+    cursor: pointer;
+}
+
+.time-display {
+    font-size: 18px;
+    color: #00FFFF;
+    margin-left: 10px;
+}
+
+#scenario-select {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00FFFF;
+    border: 1px solid #00FFFF;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* İstatistikler ve Grafikler */
+.stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.stat-box {
+    background: rgba(0, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin: 10px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00FFFF;
+}
+
+.mini-chart {
+    width: 100%;
+    height: 150px;
+    margin-top: 10px;
+}
+
+/* İstasyon Detayları */
+.station-details {
+    background: rgba(0, 10, 30, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: none;
+}
+
+/* Optimizasyon Geri Bildirimleri */
+#opt_feedback {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0, 255, 0, 0.1);
+    border-radius: 10px;
+    display: none;
+    color: #00FF00;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.optimization-info {
+    background: rgba(0, 255, 0, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    color: #00FF00;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Ambulans Markerları */
+.ambulance-marker {
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    background-color: #007BFF;
+    position: absolute;
+    animation: ambulanceBlink 1s infinite;
+}
+
+@keyframes ambulanceBlink {
+    0% { background-color: #007BFF; }
+    50% { background-color: #FF0000; }
+    100% { background-color: #007BFF; }
+}
+
+/* İstasyon Markerları */
+.station-marker.active {
+    animation: pulseActive 2s infinite;
+}
+
+.station-marker.inactive {
+    opacity: 0.5;
+}
+
+@keyframes pulseActive {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+```
